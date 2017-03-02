@@ -133,6 +133,8 @@ done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
 
+echo "$PRE_LOADED_VARS";
+
 # If we're installing the old stable release then set it as the version to install
 if $INSTALL_OLD; then VERSION_TO_INSTALL=$OLD_STABLE; fi;
 if $INSTALL_OLD; then CHECKSUM_TO_USE=$OLD_STABLE_CHECKSUM; fi;
