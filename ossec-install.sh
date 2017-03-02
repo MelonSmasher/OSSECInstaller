@@ -139,7 +139,7 @@ function begin_install {
 }
 OPTIND=1
 # Gather args from the command line
-while getopts "fiop::v::c:" opt; do
+while getopts "fiop:v:c:" opt; do
   case "${opt}" in
     o) INSTALL_OLD=true ;;
     p) PRE_LOADED_VARS=$OPTARG ;;
