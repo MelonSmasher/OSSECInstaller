@@ -52,7 +52,7 @@ function download_build {
 	die "Wrong checksum. Download again or check if file has been tampered with!"
 	ls -la $TEMP_DIR;
 	# Untar the archive
-	tar -xzvf $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL.tar.gz;
+	tar -xzvf $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz;
 	# Move into src directory.
 	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
 	# Stop OSSEC if it is installed from source.
