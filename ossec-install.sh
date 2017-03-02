@@ -10,8 +10,8 @@ CHECKSUM_TO_USE=$STABLE_CHECKSUM
 # Default Flag Values
 INSTALL_OLD=false
 # Prerequisites
-YUM_PACKAGES='wget unzip';
-APT_PACKAGES='build-essential wget unzip';
+YUM_PACKAGES='curl unzip';
+APT_PACKAGES='build-essential curl unzip';
 # Temp Dir
 TEMP_DIR=/tmp/OSSECInstaller
 
