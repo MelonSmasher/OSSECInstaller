@@ -9,6 +9,7 @@ VERSION_TO_INSTALL=$STABLE
 CHECKSUM_TO_USE=$STABLE_CHECKSUM
 # Default Flag Values
 INSTALL_OLD=false
+FORCE_INSTALL=false
 PRE_LOADED_VARS=''
 # Prerequisites
 YUM_PACKAGES='curl';
@@ -138,10 +139,13 @@ function begin_install {
 }
 OPTIND=1
 # Gather args from the command line
-while getopts ":i:o:p:" opt; do
+while getopts ":f:i:o:p::v::c:" opt; do
   case "${opt}" in
     o) INSTALL_OLD=true ;;
     p) PRE_LOADED_VARS=$OPTARG ;;
+    v) VERSION_TO_INSTALL=$OPTARG ;;
+    c) CHECKSUM_TO_USE=$OPTARG ;;
+    f) FORCE_INSTALL=true ;;
     *) echo "Unexpected option ${opt} ... ignoring" ;;
   esac
 done
@@ -151,5 +155,26 @@ shift $((OPTIND-1))
 # If we're installing the old stable release then set it as the version to install
 if $INSTALL_OLD; then VERSION_TO_INSTALL=$OLD_STABLE; fi;
 if $INSTALL_OLD; then CHECKSUM_TO_USE=$OLD_STABLE_CHECKSUM; fi;
-# Begin the installation
-begin_install;
+
+# If we are forcing the install then start it
+if $FORCE_INSTALL; then
+	# Begin the installation
+	begin_install;
+else
+	# Is OSSEC installed?
+	if [ -f "/var/ossec/bin/ossec-agentd" ]; then
+		cd /var/ossec/bin/;
+		./ossec-agentd -V &> /tmp/ossec_version;
+		installed_version=$(cat /tmp/ossec_version | sed -n 2p | awk '{print $3, $8}');
+		if [ "v$VERSION_TO_INSTALL" != $installed_version ]; then
+			# Versions do not match
+			# Begin the installation
+			begin_install;
+		fi
+	else
+		# Not installed so install it
+		# Begin the installation
+		begin_install;
+	fi
+fi
+
