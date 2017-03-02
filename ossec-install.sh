@@ -62,18 +62,20 @@ function download_build {
 	if [ "$PRE_LOADED_VARS" != "" ];
 	then
 		regex='(https?)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
-		if [[ $PRE_LOADED_VARS =~ $regex ]];then
+		if [[ $PRE_LOADED_VARS =~ $regex ]]; then
 			# We have a URL
 			echo "Downloading preloaded vars to etc ...";
 			curl $PRE_LOADED_VARS -s -o $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf;
 			die "Could not download the preloaded vars file from the url specified: $PRE_LOADED_VARS";
 			echo "Download completed!";
 		elif [ -f $PRE_LOADED_VARS ]; then
+			# We have a local file
 			echo "Copying the preloaded vars file to the source dir ...";
 			cp $PRE_LOADED_VARS $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf;
 			die "Could not copy the file: $PRE_LOADED_VARS to $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf";
 			echo "Done!";
 		else
+			# IDK but this var is not valid... we need to die
 			echo "$PRE_LOADED_VARS is not valid!"
 			echo "You must provide a url or file path to your preloaded vars file using the '-p' option!";
 			exit 5;
