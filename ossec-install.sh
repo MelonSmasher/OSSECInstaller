@@ -120,7 +120,7 @@ function begin_install {
 	download_build;
 	cleanup_tmp;
 }
-
+OPTIND=1
 # Gather args from the command line
 while getopts "op" opt; do
   case "${opt}" in
@@ -129,6 +129,9 @@ while getopts "op" opt; do
     *) echo "Unexpected option ${opt} ... ignoring" ;;
   esac
 done
+
+shift $((OPTIND-1))
+[ "$1" = "--" ] && shift
 
 # If we're installing the old stable release then set it as the version to install
 if $INSTALL_OLD; then VERSION_TO_INSTALL=$OLD_STABLE; fi;
