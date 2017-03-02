@@ -34,7 +34,7 @@ function download_build {
 	# Move into src directory.
 	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
 	# Run the ossec installer
-	bash install.sh
+	sudo bash install.sh
 	# Stop OSSEC if it is installed from source.
 	sudo service ossec-hids stop;
 	# Start the service
