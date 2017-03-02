@@ -61,12 +61,26 @@ function download_build {
 	# Get the preloaded vars file
 	if [ "$PRE_LOADED_VARS" != "" ];
 	then
-		echo "Downloading preloaded vars to etc ...";
-		curl $PRE_LOADED_VARS -s -o $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf;
-		die "Could not download the preloaded vars file from the url specified: $PRE_LOADED_VARS";
-		echo "Download completed!";
+		regex='(https?)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+		if [[ $PRE_LOADED_VARS =~ $regex ]];then
+			# We have a URL
+			echo "Downloading preloaded vars to etc ...";
+			curl $PRE_LOADED_VARS -s -o $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf;
+			die "Could not download the preloaded vars file from the url specified: $PRE_LOADED_VARS";
+			echo "Download completed!";
+		elif [ -f $PRE_LOADED_VARS ]; then
+			echo "Copying the preloaded vars file to the source dir ...";
+			cp $PRE_LOADED_VARS $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf;
+			die "Could not copy the file: $PRE_LOADED_VARS to $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf";
+			echo "Done!";
+		else
+			echo "$PRE_LOADED_VARS is not valid!"
+			echo "You must provide a url or file path to your preloaded vars file using the '-p' option!";
+			exit 5;
+		fi
 	else
-		echo "You must provide a url to your preloaded vars file using the '-p' option!";
+		echo "$PRE_LOADED_VARS is not valid!"
+		echo "You must provide a url or file path to your preloaded vars file using the '-p' option!";
 		exit 5;
 	fi
 	# Move into src directory.
@@ -122,7 +136,7 @@ function begin_install {
 }
 OPTIND=1
 # Gather args from the command line
-while getopts ":o:p:" opt; do
+while getopts ":i:o:p:" opt; do
   case "${opt}" in
     o) INSTALL_OLD=true ;;
     p) PRE_LOADED_VARS=$OPTARG ;;
