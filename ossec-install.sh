@@ -48,21 +48,21 @@ function verify_sum {
 function download_build {
 	cd $TEMP_DIR;
 	# Get Source
-	echo "Downloading OSSEC source ..."
+	echo "Downloading OSSEC source ...";
 	curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL -s -o $VERSION_TO_INSTALL.tar.gz;
-	echo "Download completed!"
+	echo "Download completed!";
 	# Verify the check sum!
 	verify_sum;
 	# Die here if the checksum did not pass
-	die "Wrong checksum. Download again or check if file has been tampered with!"
+	die "Wrong checksum. Download again or check if file has been tampered with!";
 	# Untar the archive
-	echo "Extracting $VERSION_TO_INSTALL.tar.gz ..."
+	echo "Extracting $VERSION_TO_INSTALL.tar.gz ...";
 	tar -xzf $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz;
-	echo "Extracting completed!"
+	echo "Extracting completed!";
 	# Get the preloaded vars file
 	if [ "$PRE_LOADED_VARS" != "" ];
 	then
-		regex='(https?)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+		regex='(https?)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]';
 		if [[ $PRE_LOADED_VARS =~ $regex ]]; then
 			# We have a URL
 			echo "Downloading preloaded vars to etc ...";
@@ -77,12 +77,12 @@ function download_build {
 			echo "Done!";
 		else
 			# IDK but this var is not valid... we need to die
-			echo "$PRE_LOADED_VARS is not valid!"
+			echo "$PRE_LOADED_VARS is not valid!";
 			echo "You must provide a url or file path to your preloaded vars file using the '-p' option!";
 			exit 5;
 		fi
 	else
-		echo "$PRE_LOADED_VARS is not valid!"
+		echo "$PRE_LOADED_VARS is not valid!";
 		echo "You must provide a url or file path to your preloaded vars file using the '-p' option!";
 		exit 5;
 	fi
@@ -91,35 +91,42 @@ function download_build {
 	# Stop OSSEC if it is installed from source.
 	sudo service ossec stop;
 	# Run the ossec installer
-	sudo bash install.sh
-	# Start the service
+	sudo bash install.sh;
+	verify;
+}
+
+function verify {
+	# Verify
+	cd /var/ossec/bin/;
+	./ossec-agentd -V;
 	sudo service ossec start;
+	sudo service ossec status;
 }
 
 # This function is for debian based systems
 function debian_install {
 	# Update apt cache
-	echo "Updating apt cache ..."
+	echo "Updating apt cache ...";
 	sudo apt-get -qq update;
-	echo "Done!"
+	echo "Done!";
 	# Install build environment
-	echo "Installing prerequisites from apt ..."
+	echo "Installing prerequisites from apt ...";
 	sudo apt-get install -qq -y $APT_PACKAGES;
-	echo "Done!"
+	echo "Done!";
 }
 
 # This function is for Red Hat based systems
 function rhel_install {
 	# update yum cache
-	echo "Updating yum cache ..."
-	yum makecache -q
-	echo "Done!"
+	echo "Updating yum cache ...";
+	yum makecache -q;
+	echo "Done!";
 	# Install dev tools group
-	echo "Installing prerequisites from yum ..."
+	echo "Installing prerequisites from yum ...";
 	sudo yum -y -q groupinstall 'Development Tools';
 	# Install build environment
 	sudo yum -y -q install $YUM_PACKAGES;
-	echo "Done!"
+	echo "Done!";
 }
 
 # This function fires the installation process
@@ -149,8 +156,8 @@ while getopts "fiop:v:c:" opt; do
     *) echo "Unexpected option ${opt} ... ignoring" ;;
   esac
 done
-shift $((OPTIND-1))
-[ "$1" = "--" ] && shift
+shift $((OPTIND-1));
+[ "$1" = "--" ] && shift;
 
 # If we're installing the old stable release then set it as the version to install
 if $INSTALL_OLD; then VERSION_TO_INSTALL=$OLD_STABLE; fi;
