@@ -50,6 +50,7 @@ function download_build {
 	verify_sum;
 	# Die here if the checksum did not pass
 	die "Wrong checksum. Download again or check if file has been tampered with!"
+	ls -la $TEMP_DIR;
 	# Untar the archive
 	tar -xzvf $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL.tar.gz;
 	# Move into src directory.
