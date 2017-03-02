@@ -33,8 +33,6 @@ function cleanup_tmp {
 # Verifies that the tar is good
 function verify_sum {
 	checksum=$(sha256sum $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz | cut -d" " -f1)
-	echo "downloaded: "$checksum;
-	echo "expected: "$CHECKSUM_TO_USE;
 	if [ "$checksum" == "$CHECKSUM_TO_USE" ];
 	then
 		echo "Checksum verification passed!";
@@ -52,9 +50,9 @@ function download_build {
 	verify_sum;
 	# Die here if the checksum did not pass
 	die "Wrong checksum. Download again or check if file has been tampered with!"
-	ls -la $TEMP_DIR;
 	# Untar the archive
-	tar -xzvf $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz;
+	echo "Extracting $VERSION_TO_INSTALL.tar.gz ..."
+	tar -xzf $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz;
 	# Move into src directory.
 	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
 	# Stop OSSEC if it is installed from source.
