@@ -125,7 +125,7 @@ OPTIND=1
 while getopts "op" opt; do
   case "${opt}" in
     o) INSTALL_OLD=true ;;
-	p) PRE_LOADED_VARS=$OPTARG ;;
+    p) PRE_LOADED_VARS=$OPTARG ;;
     *) echo "Unexpected option ${opt} ... ignoring" ;;
   esac
 done
