@@ -51,9 +51,9 @@ function download_build {
 	# Die here if the checksum did not pass
 	die "Wrong checksum. Download again or check if file has been tampered with!"
 	# Untar the archive
-	tar -xzvf ossec-hids-$VERSION_TO_INSTALL.tar.gz;
+	tar -xzvf $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL.tar.gz;
 	# Move into src directory.
-	cd ossec-hids-$VERSION_TO_INSTALL;
+	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
 	# Stop OSSEC if it is installed from source.
 	#sudo service ossec-hids stop;
 	# Run the ossec installer
