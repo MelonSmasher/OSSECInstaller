@@ -1,4 +1,4 @@
-# OSSEC Client Installer
+# OSSEC Installer
 
 ## Usage
 

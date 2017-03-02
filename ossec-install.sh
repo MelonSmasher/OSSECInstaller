@@ -46,17 +46,6 @@ function verify_sum {
 
 function download_build {
 	cd $TEMP_DIR;
-	# Get the preloaded vars file
-	if [ "$PRE_LOADED_VARS" != "" ];
-	then
-		echo "Downloading preloaded vars to etc ...";
-		curl $PRE_LOADED_VARS -s -o /etc/preloaded-vars.conf;
-		die "Could not download the preloaded vars file from the url specified: $PRE_LOADED_VARS";
-		echo "Download completed!";
-	else
-		echo "You must provide a url to your preloaded vars file using the '-p' option!";
-		exit 5;
-	fi
 	# Get Source
 	echo "Downloading OSSEC source ..."
 	curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL -s -o $VERSION_TO_INSTALL.tar.gz;
@@ -69,6 +58,17 @@ function download_build {
 	echo "Extracting $VERSION_TO_INSTALL.tar.gz ..."
 	tar -xzf $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz;
 	echo "Extracting completed!"
+	# Get the preloaded vars file
+	if [ "$PRE_LOADED_VARS" != "" ];
+	then
+		echo "Downloading preloaded vars to etc ...";
+		curl $PRE_LOADED_VARS -s -o $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf;
+		die "Could not download the preloaded vars file from the url specified: $PRE_LOADED_VARS";
+		echo "Download completed!";
+	else
+		echo "You must provide a url to your preloaded vars file using the '-p' option!";
+		exit 5;
+	fi
 	# Move into src directory.
 	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
 	# Stop OSSEC if it is installed from source.
