@@ -45,15 +45,15 @@ function verify_sum {
 function download_build {
 	cd $TEMP_DIR;
 	# Get Source
-	cd $TEMP_DIR; wget https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL;
+	wget https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL;
 	# Verify the check sum!
 	verify_sum;
 	# Die here if the checksum did not pass
 	die "Wrong checksum. Download again or check if file has been tampered with!"
 	# Untar the archive
-	tar -xvf $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL.tar.gz;
+	tar -xzvf ossec-hids-$VERSION_TO_INSTALL.tar.gz;
 	# Move into src directory.
-	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
+	cd ossec-hids-$VERSION_TO_INSTALL;
 	# Stop OSSEC if it is installed from source.
 	#sudo service ossec-hids stop;
 	# Run the ossec installer
