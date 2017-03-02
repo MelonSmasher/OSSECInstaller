@@ -34,8 +34,8 @@ function cleanup_tmp {
 function verify_sum {
 	checksum=$(sha256sum $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz | cut -d" " -f1)
 	echo "downloaded: "$checksum;
-	echo "expected: "$ossec_checksum;
-	if [ "$checksum" == "$ossec_checksum" ];
+	echo "expected: "$CHECKSUM_TO_USE;
+	if [ "$checksum" == "$CHECKSUM_TO_USE" ];
 	then
 		echo "Checksum verification passed!";
 	else
