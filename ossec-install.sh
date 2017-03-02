@@ -10,8 +10,8 @@ CHECKSUM_TO_USE=$STABLE_CHECKSUM
 # Default Flag Values
 INSTALL_OLD=false
 # Prerequisites
-YUM_PACKAGES='curl unzip';
-APT_PACKAGES='build-essential curl unzip';
+YUM_PACKAGES='wget unzip';
+APT_PACKAGES='build-essential wget unzip';
 # Temp Dir
 TEMP_DIR=/tmp/OSSECInstaller
 
@@ -45,7 +45,7 @@ function verify_sum {
 function download_build {
 	cd $TEMP_DIR;
 	# Get Source
-	cd $TEMP_DIR; curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL;
+	cd $TEMP_DIR; wget https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL;
 	# Verify the check sum!
 	verify_sum;
 	# Die here if the checksum did not pass
