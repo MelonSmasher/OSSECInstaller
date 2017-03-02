@@ -2,8 +2,11 @@
 
 # Versions
 STABLE="2.9.0"
+STABLE_CHECKSUM="626d9b8d6dbddee8d99f4622d54a28849ef2014aa96e14c9d183a7a8dde1d9f2"
 OLD_STABLE="2.8.3"
+OLD_STABLE_CHECKSUM="917989e23330d18b0d900e8722392cdbe4f17364a547508742c0fd005a1df7dd"
 VERSION_TO_INSTALL=$STABLE
+CHECKSUM_TO_USE=$STABLE_CHECKSUM
 # Default Flag Values
 INSTALL_OLD=false
 # Prerequisites
@@ -27,18 +30,36 @@ function cleanup_tmp {
 	sudo rm -rf $TEMP_DIR;
 }
 
+# Verifies that the tar is good
+function verify_sum {
+	checksum=$(sha256sum $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL.tar.gz | cut -d" " -f1)
+	if [ $checksum == $ossec_checksum ];
+	then
+		echo "Checksum verification passed!";
+	else
+		echo "Wrong checksum. Download again or check if file has been tampered with!";
+		exit 4;
+	fi
+}
+
 function download_build {
 	cd $TEMP_DIR;
 	# Get Source
-	cd $TEMP_DIR; curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL | tar xvz;
+	cd $TEMP_DIR; curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL;
+	# Verify the check sum!
+	verify_sum;
+	# Die here if the checksum did not pass
+	die "Wrong checksum. Download again or check if file has been tampered with!"
+	# Untar the archive
+	tar xvz $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL.tar.gz;
 	# Move into src directory.
 	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
-	# Run the ossec installer
-	sudo bash install.sh
 	# Stop OSSEC if it is installed from source.
-	sudo service ossec-hids stop;
+	#sudo service ossec-hids stop;
+	# Run the ossec installer
+	#sudo bash install.sh
 	# Start the service
-	sudo service ossec-hids start;
+	#sudo service ossec-hids start;
 }
 
 # This function is for debian based systems
@@ -83,5 +104,6 @@ done
 
 # If we're installing the old stable release then set it as the version to install
 if $INSTALL_OLD; then VERSION_TO_INSTALL=$OLD_STABLE; fi;
+if $INSTALL_OLD; then CHECKSUM_TO_USE=$OLD_STABLE_CHECKSUM; fi;
 # Begin the installation
 begin_install;
