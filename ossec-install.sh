@@ -9,7 +9,7 @@ VERSION_TO_INSTALL=$STABLE
 CHECKSUM_TO_USE=$STABLE_CHECKSUM
 # Default Flag Values
 INSTALL_OLD=false
-PRE_LOADED_VARS=false
+PRE_LOADED_VARS=''
 # Prerequisites
 YUM_PACKAGES='curl';
 APT_PACKAGES='build-essential curl';
@@ -47,7 +47,7 @@ function verify_sum {
 function download_build {
 	cd $TEMP_DIR;
 	# Get the preloaded vars file
-	if $PRE_LOADED_VARS;
+	if [ "$PRE_LOADED_VARS" != "" ];
 	then
 		echo "Downloading preloaded vars to etc ...";
 		curl $PRE_LOADED_VARS -s -o /etc/preloaded-vars.conf;
@@ -129,11 +129,8 @@ while getopts ":o:p:" opt; do
     *) echo "Unexpected option ${opt} ... ignoring" ;;
   esac
 done
-
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
-
-echo "$PRE_LOADED_VARS";
 
 # If we're installing the old stable release then set it as the version to install
 if $INSTALL_OLD; then VERSION_TO_INSTALL=$OLD_STABLE; fi;
