@@ -32,6 +32,7 @@ function cleanup_tmp {
 
 # Verifies that the tar is good
 function verify_sum {
+	echo "Verifying checksum...";
 	checksum=$(sha256sum $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz | cut -d" " -f1)
 	if [ "$checksum" == "$CHECKSUM_TO_USE" ];
 	then
@@ -45,7 +46,9 @@ function verify_sum {
 function download_build {
 	cd $TEMP_DIR;
 	# Get Source
-	curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL -o $VERSION_TO_INSTALL.tar.gz;
+	echo "Downloading OSSEC source ..."
+	curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL -s -o $VERSION_TO_INSTALL.tar.gz;
+	echo "Download completed!"
 	# Verify the check sum!
 	verify_sum;
 	# Die here if the checksum did not pass
@@ -53,6 +56,7 @@ function download_build {
 	# Untar the archive
 	echo "Extracting $VERSION_TO_INSTALL.tar.gz ..."
 	tar -xzf $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz;
+	echo "Extracting completed!"
 	# Move into src directory.
 	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
 	# Stop OSSEC if it is installed from source.
@@ -66,17 +70,27 @@ function download_build {
 # This function is for debian based systems
 function debian_install {
 	# Update apt cache
-	sudo apt-get update;
+	echo "Updating apt cache ..."
+	sudo apt-get -qq update;
+	echo "Done!"
 	# Install build environment
-	sudo apt-get install -y $APT_PACKAGES;
+	echo "Installing prerequisites from apt ..."
+	sudo apt-get install -qq -y $APT_PACKAGES;
+	echo "Done!"
 }
 
 # This function is for Red Hat based systems
 function rhel_install {
+	# update yum cache
+	echo "Updating yum cache ..."
+	yum makecache -q
+	echo "Done!"
 	# Install dev tools group
-	sudo yum -y groupinstall 'Development Tools';
+	echo "Installing prerequisites from yum ..."
+	sudo yum -y -q groupinstall 'Development Tools';
 	# Install build environment
-	sudo yum -y install $YUM_PACKAGES;
+	sudo yum -y -q install $YUM_PACKAGES;
+	echo "Done!"
 }
 
 # This function fires the installation process
