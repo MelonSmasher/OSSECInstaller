@@ -9,9 +9,10 @@ VERSION_TO_INSTALL=$STABLE
 CHECKSUM_TO_USE=$STABLE_CHECKSUM
 # Default Flag Values
 INSTALL_OLD=false
+PRE_LOADED_VARS=false
 # Prerequisites
-YUM_PACKAGES='curl unzip';
-APT_PACKAGES='build-essential curl unzip';
+YUM_PACKAGES='curl';
+APT_PACKAGES='build-essential curl';
 # Temp Dir
 TEMP_DIR=/tmp/OSSECInstaller
 
@@ -45,6 +46,17 @@ function verify_sum {
 
 function download_build {
 	cd $TEMP_DIR;
+	# Get the preloaded vars file
+	if $PRE_LOADED_VARS;
+	then
+		echo "Downloading preloaded vars to etc ...";
+		curl $PRE_LOADED_VARS -s -o /etc/preloaded-vars.conf;
+		die "Could not download the preloaded vars file from the url specified: $PRE_LOADED_VARS";
+		echo "Download completed!";
+	else
+		echo "You must provide a url to your preloaded vars file using the '-p' option!";
+		exit 5;
+	fi
 	# Get Source
 	echo "Downloading OSSEC source ..."
 	curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL -s -o $VERSION_TO_INSTALL.tar.gz;
@@ -60,11 +72,11 @@ function download_build {
 	# Move into src directory.
 	cd $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL;
 	# Stop OSSEC if it is installed from source.
-	#sudo service ossec-hids stop;
+	sudo service ossec-hids stop;
 	# Run the ossec installer
-	#sudo bash install.sh
+	sudo bash install.sh
 	# Start the service
-	#sudo service ossec-hids start;
+	sudo service ossec-hids start;
 }
 
 # This function is for debian based systems
@@ -110,10 +122,11 @@ function begin_install {
 }
 
 # Gather args from the command line
-while getopts "o" flag; do
-  case "${flag}" in
+while getopts "op" opt; do
+  case "${opt}" in
     o) INSTALL_OLD=true ;;
-    *) echo "Unexpected option ${flag} ... ignoring" ;;
+	p) PRE_LOADED_VARS=$OPTARG ;;
+    *) echo "Unexpected option ${opt} ... ignoring" ;;
   esac
 done
 
