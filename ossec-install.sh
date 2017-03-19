@@ -2,11 +2,12 @@
 
 # Versions
 STABLE="2.9.0"
-STABLE_CHECKSUM="626d9b8d6dbddee8d99f4622d54a28849ef2014aa96e14c9d183a7a8dde1d9f2"
+STABLE_CHECKSUM="9ed937c0a55fce6065925fbc396dffe14853ad366e7a77439094c124b2e799ac"
 OLD_STABLE="2.8.3"
 OLD_STABLE_CHECKSUM="917989e23330d18b0d900e8722392cdbe4f17364a547508742c0fd005a1df7dd"
 VERSION_TO_INSTALL=$STABLE
 CHECKSUM_TO_USE=$STABLE_CHECKSUM
+VERIFY_CHECKSUM=true
 # Default Flag Values
 INSTALL_OLD=false
 FORCE_INSTALL=false
@@ -32,16 +33,61 @@ function cleanup_tmp {
 	sudo rm -rf $TEMP_DIR;
 }
 
+function command_exists () {
+    type "$1" &> /dev/null ;
+}
+
 # Verifies that the tar is good
 function verify_sum {
-	echo "Verifying checksum...";
-	checksum=$(sha256sum $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz | cut -d" " -f1)
-	if [ "$checksum" == "$CHECKSUM_TO_USE" ];
+	if $VERIFY_CHECKSUM;
 	then
-		echo "Checksum verification passed!";
+		echo "Verifying checksum...";
+		checksum=$(sha256sum $TEMP_DIR/$VERSION_TO_INSTALL.tar.gz | cut -d" " -f1)
+		if [ "$checksum" == "$CHECKSUM_TO_USE" ];
+		then
+			echo "Checksum verification passed!";
+		else
+			echo "Wrong checksum. Download again or check if file has been tampered with!";
+			exit 4;
+		fi
+	fi
+}
+
+function download () {
+	url=$1;
+	file_name=$2;
+	if command_exists curl; then
+		echo 'Using curl...';
+		curl $url -s -o $file_name;
+		echo "Download completed!";
+	elif command_exists wget; then
+		echo 'Using wget...';
+		wget -O $file_name $url;
+		echo "Download completed!";
+	elif command_exists ruby; then
+		echo 'Using ruby...';
+		ruby -e "require 'open-uri'; open('$file_name','wb').write(open('$url').read)";
+		echo "Download completed!";
+	elif command_exists php; then
+		echo 'Using php...';
+		php -r "copy('$url', '$file_name');";
+		echo "Download completed!";
+	elif command_exists python2; then
+		echo 'Using python2...';
+		python2 -c "from urllib import urlretrieve; urlretrieve('$url', '$file_name')";
+		echo "Download completed!";
+	elif command_exists python3; then
+		echo 'Using python3...';
+		python3 -c "from urllib.request import urlretrieve; urlretrieve('$url', '$file_name')";
+		echo "Download completed!";
+	elif command_exists python; then
+		echo 'Using python... assuming python version is version 2...';
+		python -c "from urllib import urlretrieve; urlretrieve('$url', '$file_name')";
+		echo "Download completed!";
 	else
-		echo "Wrong checksum. Download again or check if file has been tampered with!";
-		exit 4;
+		echo 'No method available to download file. Tried curl, wget, ruby, php, and python.';
+		echo 'Install one of these and make sure it is in your path.';
+		exit 1;
 	fi
 }
 
@@ -49,8 +95,8 @@ function download_build {
 	cd $TEMP_DIR;
 	# Get Source
 	echo "Downloading OSSEC source ...";
-	curl https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL -s -o $VERSION_TO_INSTALL.tar.gz;
-	echo "Download completed!";
+	download https://codeload.github.com/ossec/ossec-hids/tar.gz/v$VERSION_TO_INSTALL $VERSION_TO_INSTALL.tar.gz;
+	die "Could not download OSSEC source!";
 	# Verify the check sum!
 	verify_sum;
 	# Die here if the checksum did not pass
@@ -66,7 +112,7 @@ function download_build {
 		if [[ $PRE_LOADED_VARS =~ $regex ]]; then
 			# We have a URL
 			echo "Downloading preloaded vars to etc ...";
-			curl $PRE_LOADED_VARS -s -o $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf;
+			download $PRE_LOADED_VARS $TEMP_DIR/ossec-hids-$VERSION_TO_INSTALL/etc/preloaded-vars.conf;
 			die "Could not download the preloaded vars file from the url specified: $PRE_LOADED_VARS";
 			echo "Download completed!";
 		elif [ -f $PRE_LOADED_VARS ]; then
@@ -146,8 +192,9 @@ function begin_install {
 }
 OPTIND=1
 # Gather args from the command line
-while getopts "fiop:v:c:" opt; do
+while getopts "sfiop:v:c:" opt; do
   case "${opt}" in
+    s) VERIFY_CHECKSUM=false ;;  	
     o) INSTALL_OLD=true ;;
     p) PRE_LOADED_VARS=$OPTARG ;;
     v) VERSION_TO_INSTALL=$OPTARG ;;

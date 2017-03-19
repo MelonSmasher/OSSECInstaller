@@ -22,6 +22,7 @@ curl -sL https://raw.githubusercontent.com/MelonSmasher/OSSECInstaller/master/os
 
 #### Options:
 
+* -s `Skip checksum verification... not recommended but it's here.`
 * -o `Install the previous stable release instead of the current stable release.`
 * -p `URL or local file path to the preloaded vars file that will be used.` This option is required.
 * -f `Force install even if the version that is installed is the same as the target version.`
